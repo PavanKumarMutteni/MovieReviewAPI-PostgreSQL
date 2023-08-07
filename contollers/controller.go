@@ -109,7 +109,12 @@ func AddMovieRecord(context *gin.Context) {
 	var newMovie entity.Movie
 	db := database.ConfigureDB()
 	if err := context.BindJSON(&newMovie); err != nil {
-		context.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Some thing went wrong while Adding a movie"})
+		context.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Some thing went wrong while Adding a movie. Please Make sure all fields are present"})
+		return
+	}
+	checking := IsValid(newMovie)
+	if len(checking) != 0 {
+		context.IndentedJSON(http.StatusBadRequest, gin.H{"message": checking})
 		return
 	}
 	_, err := db.Exec("Insert into movies(entryno, moviename, reviewscore, synopsis, director, yearofrelease) values($1, $2, $3, $4, $5, $6)",
